@@ -23,3 +23,23 @@ extracted_submissions/
 
 # VS Code
 .vscode/
+# Python
+__pycache__/
+*.py[cod]
+*.db
+
+# Virtual environment
+.venv/
+venv/
+
+# Generated analysis files
+instance/
+extracted_submissions/
+reports/
+
+# Uploaded files
+submissions/*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
