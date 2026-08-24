@@ -1,0 +1,25 @@
+# Virtual environment
+.venv/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Database
+*.db
+
+# Generated reports
+reports/
+
+# Extracted files
+extracted_submissions/
+
+# Uploaded ZIP files
+*.zip
+
+# Environment files
+.env
+
+# VS Code
+.vscode/

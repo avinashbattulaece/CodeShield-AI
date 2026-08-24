@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeShield AI Results</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main class="container wide">
+    <section class="topbar">
+        <div>
+            <div class="logo small">🛡️</div>
+            <h1>CodeShield AI Results</h1>
+            <p>Analysis ID: {{ analysis.id[:8] }} · {{ analysis.total_files }} files analyzed</p>
+        </div>
+        <div class="actions">
+            <a class="button secondary" href="{{ url_for('dashboard', analysis_id=analysis.id) }}">📊 Dashboard</a>
+            <a class="button secondary" href="{{ url_for('report_pdf', analysis_id=analysis.id) }}">⬇ PDF</a>
+            <a class="button secondary" href="{{ url_for('report_csv', analysis_id=analysis.id) }}">⬇ CSV</a>
+            <a class="button primary-link" href="{{ url_for('index') }}">New Analysis</a>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="stat"><b>{{ analysis.total_comparisons }}</b><span>Total Comparisons</span></div>
+        <div class="stat high"><b>{{ analysis.high_count }}</b><span>High Risk</span></div>
+        <div class="stat medium"><b>{{ analysis.medium_count }}</b><span>Medium Risk</span></div>
+        <div class="stat low"><b>{{ analysis.low_count }}</b><span>Low Risk</span></div>
+    </section>
+
+    <section class="card">
+        <h2>📊 Comparison Results</h2>
+        <div class="table-wrap">
+            <table>
+                <thead><tr><th>Student 1</th><th>Student 2</th><th>Similarity</th><th>Status</th></tr></thead>
+                <tbody>
+                {% for r in analysis.results %}
+                    <tr>
+                        <td>{{ r.file1 }}</td>
+                        <td>{{ r.file2 }}</td>
+                        <td><b>{{ "%.2f"|format(r.similarity) }}%</b></td>
+                        <td><span class="badge {{ r.status.split()[0].lower() }}">{{ r.status }}</span></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <h2 class="section-title">🔍 Suspicious / Similar Code</h2>
+
+    {% for r in analysis.results %}
+    <section class="comparison card">
+        <div class="comparison-head">
+            <div>
+                <h2>{{ r.file1 }} <span>vs</span> {{ r.file2 }}</h2>
+                <p>Similarity: <b>{{ "%.2f"|format(r.similarity) }}%</b></p>
+            </div>
+            <span class="badge {{ r.status.split()[0].lower() }}">{{ r.status }}</span>
+        </div>
+
+        {% if r.similarity >= 40 %}
+        <div class="code-grid">
+            <div>
+                <h3>{{ r.file1 }}</h3>
+                <pre><code>{{ r.code1 }}</code></pre>
+            </div>
+            <div>
+                <h3>{{ r.file2 }}</h3>
+                <pre><code>{{ r.code2 }}</code></pre>
+            </div>
+        </div>
+        <div class="explanation">⚡ {{ r.explanation }}</div>
+        {% else %}
+        <div class="empty">No strong suspicious code blocks found. {{ r.explanation }}</div>
+        {% endif %}
+    </section>
+    {% endfor %}
+</main>
+</body>
+</html>

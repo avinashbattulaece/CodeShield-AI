@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeShield AI</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<main class="container">
+    <section class="hero">
+        <div class="logo">🛡️</div>
+        <h1>CodeShield AI</h1>
+        <p>Intelligent Source Code Plagiarism Detection System</p>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <section class="card">
+        <h2>Analyze Student Submissions</h2>
+        <form action="{{ url_for('analyze') }}" method="POST" enctype="multipart/form-data">
+            <label class="field-label">Plagiarism Detection Threshold</label>
+            <div class="range-row">
+                <input id="threshold" type="range" name="threshold" min="40" max="90" value="60">
+                <strong><span id="thresholdValue">60</span>%</strong>
+            </div>
+            <p class="hint">Scores greater than or equal to this value are marked HIGH RISK.</p>
+
+            <div class="upload-grid">
+                <label class="upload-box">
+                    <span>📁</span>
+                    <strong>Individual Source Files</strong>
+                    <small>Python, Java, C, C++, JavaScript, TypeScript</small>
+                    <input type="file" name="files" multiple accept=".py,.java,.c,.cpp,.cc,.h,.hpp,.js,.ts">
+                </label>
+
+                <label class="upload-box">
+                    <span>🗜️</span>
+                    <strong>Entire Class ZIP</strong>
+                    <small>ZIP containing multiple source files</small>
+                    <input type="file" name="class_zip" accept=".zip">
+                </label>
+            </div>
+
+            <button class="primary" type="submit">🔍 Analyze Code</button>
+        </form>
+    </section>
+</main>
+<script>
+const slider = document.getElementById("threshold");
+const output = document.getElementById("thresholdValue");
+slider.addEventListener("input", () => output.textContent = slider.value);
+</script>
+</body>
+</html>

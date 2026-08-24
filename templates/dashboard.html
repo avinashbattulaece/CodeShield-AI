@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeShield AI Dashboard</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<main class="container wide">
+    <section class="topbar">
+        <div>
+            <div class="logo small">🛡️</div>
+            <h1>Class Analytics Dashboard</h1>
+            <p>Risk distribution and student comparison overview</p>
+        </div>
+        <div class="actions">
+            <a class="button secondary" href="{{ url_for('results', analysis_id=analysis.id) }}">← Results</a>
+            <a class="button secondary" href="{{ url_for('report_pdf', analysis_id=analysis.id) }}">⬇ PDF Report</a>
+        </div>
+    </section>
+
+    <section class="stats">
+        <div class="stat"><b>{{ analysis.total_files }}</b><span>Students / Files</span></div>
+        <div class="stat high"><b>{{ analysis.high_count }}</b><span>High Risk</span></div>
+        <div class="stat medium"><b>{{ analysis.medium_count }}</b><span>Medium Risk</span></div>
+        <div class="stat low"><b>{{ analysis.low_count }}</b><span>Low Risk</span></div>
+    </section>
+
+    <section class="chart-grid">
+        <div class="card chart-card">
+            <h2>Risk Distribution</h2>
+            <div class="chart-box"><canvas id="riskChart"></canvas></div>
+        </div>
+        <div class="card chart-card">
+            <h2>Top Similarity Scores</h2>
+            <div class="chart-box"><canvas id="similarityChart"></canvas></div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Student / File Overview</h2>
+        <div class="table-wrap">
+        <table>
+            <thead><tr><th>Student / File</th><th>Comparisons</th><th>High</th><th>Medium</th><th>Low</th></tr></thead>
+            <tbody>
+            {% for name, info in students.items() %}
+                <tr>
+                    <td>{{ name }}</td>
+                    <td>{{ info.comparisons }}</td>
+                    <td>{{ info.high }}</td>
+                    <td>{{ info.medium }}</td>
+                    <td>{{ info.low }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </section>
+</main>
+
+<script>
+const riskData = {{ [analysis.high_count, analysis.medium_count, analysis.low_count] | tojson }};
+const labels = {{ analysis.results[:8] | map(attribute='file1') | list | tojson }};
+const scores = {{ analysis.results[:8] | map(attribute='similarity') | list | tojson }};
+
+new Chart(document.getElementById("riskChart"), {
+    type: "doughnut",
+    data: {
+        labels: ["High Risk", "Medium Risk", "Low Risk"],
+        datasets: [{
+            data: riskData,
+            backgroundColor: ["#ef4444", "#f59e0b", "#22c55e"],
+            borderWidth: 0
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } }
+});
+
+new Chart(document.getElementById("similarityChart"), {
+    type: "bar",
+    data: {
+        labels: {{ analysis.results[:8] | map(attribute='file1') | list | tojson }},
+        datasets: [{
+            label: "Similarity %",
+            data: {{ analysis.results[:8] | map(attribute='similarity') | list | tojson }},
+            backgroundColor: "#3b82f6"
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: { y: { beginAtZero: true, max: 100 } }
+    }
+});
+</script>
+</body>
+</html>
